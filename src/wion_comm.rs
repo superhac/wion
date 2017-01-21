@@ -9,7 +9,7 @@ use std::thread;
 use std::time;
 
 const messaging_port: u16 = 80;
-const broadcast_port: u16 = 25;
+const broadcast_port: u16 = 5888; // or 25
 
 //#[allow(dead_code)]
 #[derive(Default)]
