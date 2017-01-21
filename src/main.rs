@@ -21,25 +21,10 @@ fn main() {
     //println!("sender: {}, Recd Bytes: {}", src_address.ip(), readcount);
     //println!("bte0: {:?}", buf);
     //recv_msg(src_address, readcount, buf);
-    send_broadcast(&send_broadcast_sock);
+    wion_comm::send_broadcast(&send_broadcast_sock);
     thread::sleep(time::Duration::from_millis(5000));
-    send_broadcast(&send_broadcast_sock);
+    wion_comm::send_broadcast(&send_broadcast_sock);
     thread::sleep(time::Duration::from_millis(5000));
-}
-
-fn send_broadcast(socket: &UdpSocket) {
-
-    let mut buf = [0;128];
-    let broadcast_addr = SocketAddrV4::new(Ipv4Addr::new(255, 255, 255, 255), 25);
-    // You need these bytes starting at offset 24 in the 128 byte packet to receive responses.
-    buf[24] = 0xE0;
-    buf[25] = 0x07;
-    buf[26] = 0x06;
-    buf[27] = 0x07;
-    buf[28] = 0x07;
-    buf[29] = 0xE6;
-    socket.set_broadcast(true);
-    socket.send_to(&buf, broadcast_addr);
 }
 
 fn read_msg(socket: UdpSocket) -> (SocketAddr, usize, Vec<u8> ) {

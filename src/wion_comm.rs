@@ -4,7 +4,7 @@ use std::io::Read;
 use std;
 use std::str;
 use std::net::UdpSocket;
-use std::net::{IpAddr, Ipv4Addr, SocketAddr};
+use std::net::{IpAddr, Ipv4Addr, SocketAddr, SocketAddrV4};
 use std::thread;
 use std::time;
 
@@ -254,7 +254,7 @@ fn broadcast_listener(socket: UdpSocket) {
                         Err(err) => println!("Failed to get a complete packet. Dropping: Debug {:?} ",err),
                     }
                 },
-                Err(err) => panic!("recv error: {}", err)  
+                Err(err) => panic!("recv error: {}", err)
             }
         }
     }
@@ -267,4 +267,19 @@ pub fn broadcast_setup() -> UdpSocket {
     let socket_listen = socket.try_clone().unwrap(); // have to clone it for thread
     thread::spawn(|| broadcast_listener(socket_listen));
     socket
+}
+
+pub fn send_broadcast(socket: &UdpSocket) {
+
+    let mut buf = [0;128];
+    let broadcast_addr = SocketAddrV4::new(Ipv4Addr::new(255, 255, 255, 255), 25);
+    // You need these bytes starting at offset 24 in the 128 byte packet to receive responses.
+    buf[24] = 0xE0;
+    buf[25] = 0x07;
+    buf[26] = 0x06;
+    buf[27] = 0x07;
+    buf[28] = 0x07;
+    buf[29] = 0xE6;
+    socket.set_broadcast(true);
+    socket.send_to(&buf, broadcast_addr);
 }
