@@ -4,7 +4,9 @@
 
 <p>This is a very early implementation of KAB enterprises protocol in Rust that is used to control smart plugs and switches.  They are sold under numerous brand names such as WiOn or ECOplugs.</p>
 <h2> Device Discovery </h2>
-<p>  The discovery of devices on the network is achieved by sending a UDP broadcast packet on either port 25 or 5888 to the local network where the device(s) reside.  The payload of this broadcast is comprised of 128 bytes all set to zero except for six bytes starting at offset 24 with the following values, 0xE0, 0x07, 0x06, 0x07, 0x07, 0xE0.  As far I've been able to surmise these bytes don't represent anything tangible, but they must be represented exactly as specified starting at offset 24.  Below is a Hex dump representation of the payload: <BR><BR>
+<p>  The discovery of devices on the network is achieved by sending a UDP broadcast packet on either port 25 or 5888 to the local network where the device(s) reside.  
+</h3>Discovery Request</h3>
+The payload of this broadcast is comprised of 128 bytes all set to zero except for six bytes starting at offset 24 with the following values, 0xE0, 0x07, 0x06, 0x07, 0x07, 0xE0.  As far I've been able to surmise these bytes don't represent anything tangible, but they must be represented exactly as specified starting at offset 24.  Below is a Hex dump representation of the payload: <BR><BR>
 <pre width="30">
 0000   00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
 0010   00 00 00 00 00 00 00 00 e0 07 06 07 07 e6 00 00
@@ -16,7 +18,7 @@
 0070   00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
 </pre>
 </p>
-<h3> Broadcast Response </h3>
+<h3> Discovery Response </h3>
 <p>The following is the response structure that will be returned from each device after the broadcast has been sent:
 <pre>
 pub struct BroadcastResp {
@@ -54,7 +56,7 @@ pub struct BroadcastResp {
     pub dev_port: u32,
   }
 </pre>  
-The total byte size of the response is always 408 bytes (because the max size of all dynamic fields is fixed.  E.g dev_name is set to hard 32 byte length). You should also note that response includes the wifi ssid the device is connected to and the wifi password of that network.  <b>Both values are transmitted in clear text.</b>  Below is an example of a parsed response:
+The total byte size of the response is always 408 bytes (because the max size of all dynamic fields is fixed.  E.g dev_name is set to hard 32 byte length). You should also note that response includes the WiFi SSID the device is connected to and the WiFi password of that network.  <b>Both values are transmitted in clear text.</b>  Below is an example of a parsed response:
 <pre>
 Unknown: 0x0
 Version: 1.6.0
@@ -89,3 +91,4 @@ MAC: 48:5c:2a:4d:a1:22
 IP: 192.168.0.248
 Port: 80
 </pre>
+</p>
