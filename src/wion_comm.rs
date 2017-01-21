@@ -254,7 +254,7 @@ fn broadcast_listener(socket: UdpSocket) {
                         Err(err) => println!("Failed to get a complete packet. Dropping: Debug {:?} ",err),
                     }
                 },
-                Err(err) => panic!("recv error: {}", err)
+                Err(err) => panic!("recv error: {}", err)  
             }
         }
     }
