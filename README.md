@@ -1,6 +1,6 @@
 <h1>WiOn SmartSwitch/Outlet (KAB enterprises protocol) Implementation</h1>
 
-<img src="https://github.com/superhac/wion/blob/master/docs/imgs/wion_switch.jpg" alt="WiOn Switch" style="width:150px;height:228px;">
+<img src="https://github.com/superhac/wion/blob/master/docs/imgs/wion_switch.jpg" align=right alt="WiOn Switch" style="width:150px;height:228px;">
 
 <p>This is a very early implementation of KAB enterprises protocol in Rust that is used to control smart plugs and switches.  They are sold under numerous brand names such as WiOn or ECOplugs.</p>
 <h2> Device Discovery </h2>
