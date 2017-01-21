@@ -16,3 +16,41 @@
 0070   00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
 </pre>
 </p>
+<h3> Broadcast Response </h3>
+<p>The following is the response structure that will be returned after the broadcast has been sent
+<pre>
+pub struct BroadcastResp {
+    pub unknown: u32,
+    pub version: [u8;6], //string
+    pub dev_model: [u8;32],   //string
+    pub dev_name: [u8;32],  //string
+    pub dev_serial: [u8;34],  //string
+    pub unknown2: u32,
+    pub unknown3: u32,
+    pub unknown4: u32,
+    pub ssid: [u8;64],  //string
+    pub wifi_pass: [u8;64],  //string
+    pub unknown5: u32,
+    pub unknown6: u32,
+    pub unknown7: u32,
+    pub zipcode: [u8;12],
+    pub p2pm: [u8;16],  //string ip
+    pub p2ps: [u8;16], //string ip
+    pub paw: [u8;16], //string ip
+    pub unknown8: u32,
+    pub unknown9: u32,
+    pub unknown10: u32,
+    pub unknown11: u32,
+    pub unknown12: u32,
+    pub unknown13: u32,
+    pub unknown14: u32,
+    pub unknown15: u32,
+    pub unknown16: u32,
+    pub unknown17: u32,
+    pub unknown18: u32,
+    pub unknown19: u32,
+    pub dev_mac: [u8;18], //string
+    pub dev_ip: [u8;18], //string
+    pub dev_port: u32,
+  }
+</pre>  
