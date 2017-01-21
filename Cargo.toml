@@ -1,0 +1,10 @@
+[package]
+
+name = "wion"
+version = "0.0.1"
+authors = [ "Superhac <superhac007@gmail.com>" ]
+
+[dependencies]
+byteorder = "1"
+
+
