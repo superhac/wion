@@ -17,7 +17,7 @@
 </pre>
 </p>
 <h3> Broadcast Response </h3>
-<p>The following is the response structure that will be returned after the broadcast has been sent
+<p>The following is the response structure that will be returned from each device after the broadcast has been sent:
 <pre>
 pub struct BroadcastResp {
     pub unknown: u32,
@@ -54,3 +54,38 @@ pub struct BroadcastResp {
     pub dev_port: u32,
   }
 </pre>  
+The total byte size of the response is always 408 bytes (because the max size of all dynamic fields is fixed.  E.g dev_name is set to hard 32 byte length). You should also note that response includes the wifi ssid the device is connected to and the wifi password of that network.  <b>Both values are transmitted in clear text.</b>  Below is an example of a parsed response:
+<pre>
+Unknown: 0x0
+Version: 1.6.0
+Model: ECO-74227201
+Name: Basement
+Serial: 74227201
+Unknown2: 0x150117E1
+Unknown3: 0x9FF0
+Unknown4: 0xFFFF3B20
+SSID: myhouse
+WiFi Pass: mywifipass
+Unknown5: 0x30300001
+Unknown6: 0x31
+Unknown7: 0x0
+Zipcode: 90210
+p2pm: 210.71.198.37
+p2ps: 210.71.198.37
+paw: 61.220.255.143
+Unknown8: 0x1
+Unknown9: 0x2
+Unknown10: 0x3
+Unknown11: 0x10101
+Unknown12: 0x43530001
+Unknown13: 0x4C347A71
+Unknown14: 0x64434676
+Unknown15: 0x0
+Unknown16: 0x0
+Unknown17: 0x0
+Unknown18: 0x0
+Unknown19: 0x0
+MAC: 48:5c:2a:4d:a1:22
+IP: 192.168.0.248
+Port: 80
+</pre>
