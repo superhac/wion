@@ -113,6 +113,7 @@ pub struct Header {
 </pre></p>
 <h2>Known Commands</h2>
 <p>Below is a list of the known commands:
+<pre>
 public static final int CMD_BASCI_CONNECT_ROUTER = 327697;
 public static final int CMD_BASCI_END_UPGRADE = 328195;
 public static final int CMD_BASCI_GET_RDM_STATUS = 327713;
