@@ -25,8 +25,8 @@ pub struct Header {
     pub seq_counter: u32,
     pub unknown: u32,
     pub resp_conn_id: u32,
-    pub operation: u8, // read or write? Field only on requests
-    pub rw_byte: u8, // what byte to read or write to?  Field only on requests
+    pub operation: u8, // read or write? Field only on requests.  Field only seen on requests.
+    pub rw_byte: u8, // what byte to read or write to?  Field only on requests.
 }
 #[allow(dead_code)]
 //#[derive(Default)]
@@ -152,7 +152,7 @@ pub fn parse_broadcast(buf: Vec<u8>) -> Result<Box<BroadcastResp>, std::io::Erro
         try!(buf.read_exact(&mut bresp.ssid));
         try!(buf.read_exact(&mut bresp.wifi_pass));
         bresp.unknown5 = try!(buf.read_u32::<LittleEndian>());
-        bresp.unknown6 = try!(buf.read_u32::<LittleEndian>());
+        bresp.unknown6 = try!(buf.read_u32::<LittleEndian>());j
         bresp.unknown7 = try!(buf.read_u32::<LittleEndian>());
         try!(buf.read_exact(&mut bresp.zipcode));
         try!(buf.read_exact(&mut bresp.p2pm));
