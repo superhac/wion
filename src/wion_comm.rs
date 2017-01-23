@@ -152,7 +152,7 @@ pub fn parse_broadcast(buf: Vec<u8>) -> Result<Box<BroadcastResp>, std::io::Erro
         try!(buf.read_exact(&mut bresp.ssid));
         try!(buf.read_exact(&mut bresp.wifi_pass));
         bresp.unknown5 = try!(buf.read_u32::<LittleEndian>());
-        bresp.unknown6 = try!(buf.read_u32::<LittleEndian>());j
+        bresp.unknown6 = try!(buf.read_u32::<LittleEndian>());
         bresp.unknown7 = try!(buf.read_u32::<LittleEndian>());
         try!(buf.read_exact(&mut bresp.zipcode));
         try!(buf.read_exact(&mut bresp.p2pm));
