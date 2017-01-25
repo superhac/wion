@@ -14,6 +14,11 @@ fn main() {
     let ip_addr_listen_on = SocketAddr::new(bind_ip, bind_port);
     let socket = wion_comm::open_socket(ip_addr_listen_on);
     let send_broadcast_sock = wion_comm::broadcast_setup();
+    wion_comm::send_broadcast(&send_broadcast_sock);
+    thread::sleep(time::Duration::from_millis(5000));
+    wion_comm::send_broadcast(&send_broadcast_sock);
+    thread::sleep(time::Duration::from_millis(5000));
+
 
     //listen and send commands
     //let (src_address, readcount, buf) = read_msg(socket); // blocks!
@@ -21,10 +26,7 @@ fn main() {
     //println!("sender: {}, Recd Bytes: {}", src_address.ip(), readcount);
     //println!("bte0: {:?}", buf);
     //recv_msg(src_address, readcount, buf);
-    wion_comm::send_broadcast(&send_broadcast_sock);
-    thread::sleep(time::Duration::from_millis(5000));
-    wion_comm::send_broadcast(&send_broadcast_sock);
-    thread::sleep(time::Duration::from_millis(5000));
+
 }
 
 fn read_msg(socket: UdpSocket) -> (SocketAddr, usize, Vec<u8> ) {

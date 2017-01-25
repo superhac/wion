@@ -107,8 +107,8 @@ pub struct Header {
     pub seq_counter: u32,
     pub unknown: u32,
     pub resp_conn_id: u32,
-    pub tableEntryCount: u8, // Field only on requests. 
-    pub unknown: u8, //  Field only on requests.
+    pub operation: u8, // Read=0, Write=1.  Field only on requests.
+    pub writeValue: u8, //  Value to write.  0=off, 1=on Field only on requests.
 }
 </pre></p>
 <h2>Known Commands</h2>
