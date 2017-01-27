@@ -111,6 +111,26 @@ pub struct Header {
     pub writeValue: u8, //  Value to write.  0=off, 1=on Field only on requests.
 }
 </pre></p>
+<h2>Toggle Switch on or off</h2>
+<p>The switch can be turned by loading and transmitting the following structure to the device:
+<pre>
+head.cmd = 327702;
+head.req_conn_id = rng.gen::<u32>(); ; // needs to be changed each time or device is flakey with fast changes.  using rand now,
+head.cmd_type = 0x02;
+// must have model or the  device will not on turn
+head.model = [0x45, 0x43, 0x4F, 0x2D, 0x37, 0x38, 0x30, 0x30, 0x34, 0x42, 0x30, 0x31, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00];
+head.seq_counter = 0x55555555; // needs to be changed each time or device is flakey with fast changes.  using rand now, but could be incremented
+head.operation = 0x02;
+head.rw_byte = 1;  // 1 = on, 0 = off  
+</pre>
+You'll notice that certain fields with in the Header structure need not be set.  These are the minimum required for the switch to be turned on and off.   Below is an example response
+you will receive from the device (128 bytes):
+<pre>
+[Cmd: 0x50016, Req Conn ID: 0x84DD0000, cmd_type: 0x0,
+ Version: 1.6.0, Model: ECO-78004B01, Dev_name: Basement test, Serial: 78004B01,
+ Resp_Status: 0x7E11DC5E, Seq Counter: 1431655765, Unknown: 0 Resp Conn ID: 0x0]
+</ore>
+</p>
 <h2>Known Commands</h2>
 <p>Below is a list of the known commands:
 <pre>
