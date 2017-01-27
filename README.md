@@ -115,13 +115,13 @@ pub struct Header {
 <p>The switch can be turned by loading and transmitting the following structure to the device:
 <pre>
 head.cmd = 327702;
-head.req_conn_id = rng.gen::<u32>(); ; // needs to be changed each time or device is flakey with fast changes.  using rand now,
+head.req_conn_id = rng.gen::<u32>(); ; // needs to be changed each time or device is flaky with fast changes.  
+                                          using rand now,
 head.cmd_type = 0x02;
 // must have model or the  device will not on turn
 head.model = [0x45, 0x43, 0x4F, 0x2D, 0x37, 0x38, 0x30, 0x30, 0x34, 0x42, 0x30, 0x31, 0x00, 0x00, 0x00, 0x00,
               0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00];
-head.seq_counter = 0x55555555; // needs to be changed each time or device is flaky with fast changes.  
-                                  using rand now, but could be incremented
+head.seq_counter = 0x55555555; // should be incremented, but it doesn't really matter, used for tracking
 head.operation = 0x02;
 head.rw_byte = 1;  // 1 = on, 0 = off  
 </pre>
