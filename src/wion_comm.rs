@@ -182,19 +182,11 @@ pub fn parse_broadcast(buf: Vec<u8>) -> Result<Box<BroadcastResp>, std::io::Erro
 }
 
 pub fn dump_packet_header(head: Header) {
-    println!("Cmd: 0x{:X}", head.cmd);
-    println!("Req Conn ID: 0x{:X}", head.req_conn_id);
-    println!("cmd_type: 0x{:X}", head.cmd_type);
-    println!("Version: {}", str::from_utf8(&head.version).unwrap());
-    println!("Model: {}", str::from_utf8(&head.model).unwrap());
-    println!("Dev_name: {}", str::from_utf8(&head.dev_name).unwrap());
-    println!("Serial: {}", str::from_utf8(&head.serial).unwrap());
-    println!("Resp_Status: 0x{:X}", head.resp_status);
-    println!("Seq Counter: {}", head.seq_counter);
-    println!("Unknown: {}", head.unknown);
-    println!("Resp Conn ID: 0x{:X}", head.resp_conn_id);
-    println!("Operation: {}", head.operation);
-    println!("rwByte: {}", head.rw_byte);
+    println!("Msg_Header");
+    println!("[Cmd: 0x{:X}, Req Conn ID: 0x{:X}, cmd_type: 0x{:X}, \n Version: {}, Model: {}, Dev_name: {}, Serial: {},\n Resp_Status: 0x{:X}, Seq Counter: {}, Unknown: {} \
+     Resp Conn ID: 0x{:X}, \n Operation: {}, rwByte: {}]", head.cmd,  head.req_conn_id, head.cmd_type, str::from_utf8(&head.version).unwrap(), str::from_utf8(&head.model).unwrap(),
+     str::from_utf8(&head.dev_name).unwrap(), str::from_utf8(&head.serial).unwrap(), head.resp_status, head.seq_counter, head.unknown, head.resp_conn_id,
+      head.operation, head.rw_byte);
 }
 
 pub fn dump_packet_broadcast(bresp: BroadcastResp) {
@@ -242,14 +234,13 @@ pub fn open_socket(socketaddr: SocketAddr) -> UdpSocket  {
 }
 
 fn broadcast_listener(socket: UdpSocket) {
-        println!("my ip: {:?}", socket.local_addr());
         let mut buf = vec![0;1500];
         let mut bresp;
         while true {
-            match socket.recv_from(&mut buf) {
+            match socket.recv_from(&mut buf) { //blocks
                 Ok( (rcount,src_ip) ) =>  {
                     let buf = buf[0..rcount].to_vec(); // trim buf to actual recieved bytes
-                    println!("got broadcast packet: size: {} SRC: {}", buf.len(), src_ip);
+                    println!("recvd broadcast packet: size: {} SRC: {}", buf.len(), src_ip);
                     match parse_broadcast(buf) {
                         Ok(n) => {
                             bresp = *n;
@@ -273,8 +264,39 @@ pub fn broadcast_setup() -> UdpSocket {
     socket
 }
 
-pub fn send_broadcast(socket: &UdpSocket) {
+pub fn msg_listener_setup() -> UdpSocket {
+    // broadcast only
+    let bind_ip = IpAddr::V4(Ipv4Addr::new(0, 0, 0, 0));
+    let ip_addr_listen_on = SocketAddr::new(bind_ip, 9191);
+    let socket = open_socket(ip_addr_listen_on);
+    let socket_listen = socket.try_clone().unwrap(); // have to clone it for thread
+    thread::spawn(|| msg_listener(socket_listen));
+    socket
+}
 
+pub fn msg_listener(socket: UdpSocket) {
+    println!("my ip: {:?}", socket.local_addr());
+    let mut buf = vec![0;1500];
+    let mut hresp;
+    while true {
+        match socket.recv_from(&mut buf) {
+            Ok( (rcount,src_ip) ) =>  {
+                let buf = buf[0..rcount].to_vec(); // trim buf to actual recieved bytes
+                println!("recvd msg resp: size: {} SRC: {}", buf.len(), src_ip);
+                match head_parse(buf) {
+                    Ok(n) => {
+                        hresp = *n;
+                        dump_packet_header(hresp)
+                    },
+                    Err(err) => println!("Failed to get a complete packet. Dropping: Debug {:?} ",err),
+                }
+            },
+            Err(err) => panic!("recv error: {}", err)
+        }
+    }
+}
+
+pub fn send_broadcast(socket: &UdpSocket) {
     let mut buf = [0;128];
     let broadcast_addr = SocketAddrV4::new(Ipv4Addr::new(255, 255, 255, 255), 25);
     // You need these bytes starting at offset 24 in the 128 byte packet to receive responses.
@@ -288,7 +310,7 @@ pub fn send_broadcast(socket: &UdpSocket) {
     socket.send_to(&buf, broadcast_addr);
 }
 
-pub fn send_basic_cmd(socket: &UdpSocket, cmd: u32, operation: u8 , write_value:u8, device_ip: &SocketAddr ) {
+fn send_basic_cmd(socket: &UdpSocket, cmd: u32, operation: u8 , write_value:u8, device_ip: &SocketAddr ) {
     //Debug
     //let ip = SocketAddr::new(IpAddr::V4(Ipv4Addr::new(192, 168, 0, 237)), 80);
     let mut rng = rand::thread_rng();
@@ -300,17 +322,22 @@ pub fn send_basic_cmd(socket: &UdpSocket, cmd: u32, operation: u8 , write_value:
     //head.version = [0x31, 0x2E, 0x36, 0x2E, 0x30, 0x0];  //didnt do anything
     // must have model or the cmd will not work
     head.model = [0x45, 0x43, 0x4F, 0x2D, 0x37, 0x38, 0x30, 0x30, 0x34, 0x42, 0x30, 0x31, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00];
-    //head.dev_name = [0x42,0x61,0x73,0x65,0x6D,0x65,0x6E,0x74,0x20,0x63,0x65,0x69,0x6C,0x69,0x6E,0x67,0x6F,0x75,0x73,0x65,0x20,0x4C,0x69,0x67,0x68,0x74,0x73,0x00,0x00,0x00,0x00,0x00];
+    //head.dev_name = [0x42,0x61,0x73,0x65,0x6D,0x65,0x6E,0x74,0x20,0x63,0x65,0x69,0x6C,0x69,0x6E,0x67,0x6F,0x75,0x73,0x65,0x20,0x4C,0x69,0x67,0x68,0x74,0x73,0x00,0x00,0x00,0x00,0x00]; // not required to match device
     head.seq_counter = 0x55555555; // needs to be changed each time or device is flakey with fast changes.  using rand now, but could be incremented
     //head.resp_conn_id = 0x41B835C7; //  doesnt do anything
     head.operation = operation;
     head.rw_byte = write_value;
-
     // convert struct to byte stream
     let buf = pack_header(head);
     //send packet
     socket.send_to(&buf, device_ip).expect("error sending");
+}
 
+pub fn send_switch_toggle(switch: bool, device_ip: &str, socket: &UdpSocket) {
+    let ip: std::net::IpAddr = device_ip.parse().unwrap();
+    let dst = SocketAddr::new(ip, 80);
+    println!{"Toggling wwith at dev ip: {:?}", device_ip};
+    send_basic_cmd(&socket, 327702, 1, switch as u8, &dst );
 }
 
 fn pack_header(head: Header) -> Box<Vec<u8>> {
