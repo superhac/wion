@@ -93,7 +93,7 @@ Port: 80
 </pre>
 </p>
 <h2>Request/Response Header</h2>
-<p>The request header is the common header to all directed communication with the device.  Note that the last two bytes of the structure are only present on "Requests".  Thus the base size of a request is 46 bytes, while the base response packet size is 44 bytes.  
+<p>The request header is the common header to all directed communication with the device.  Note that the last two bytes of the structure are only present on "Requests".  Thus the base size of a request is 130 bytes, while the base response packet size is 128 bytes.  
 <pre>
 pub struct Header {
     pub cmd: u32,
