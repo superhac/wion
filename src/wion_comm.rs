@@ -1,17 +1,20 @@
+extern crate rand;
 use std::io::Cursor;
 use byteorder::{ReadBytesExt, WriteBytesExt, LittleEndian};
-use std::io::Read;
+use std::io::{Read, Write};
 use std;
 use std::str;
 use std::net::UdpSocket;
 use std::net::{IpAddr, Ipv4Addr, SocketAddr, SocketAddrV4};
 use std::thread;
 use std::time;
+use rand::Rng;
 
 const messaging_port: u16 = 80;
 const broadcast_port: u16 = 5888; // or 25
 
 //#[allow(dead_code)]
+
 #[derive(Default)]
 pub struct Header {
     pub cmd: u32,
@@ -28,19 +31,20 @@ pub struct Header {
     pub operation: u8, // read or write? Field only on requests.  Field only seen on requests.
     pub rw_byte: u8, // what byte to read or write to?  Field only on requests.
 }
+
 #[allow(dead_code)]
-//#[derive(Default)]
+
 pub struct BroadcastResp {
     pub unknown: u32,
     pub version: [u8;6], //string
     pub dev_model: [u8;32],   //string
     pub dev_name: [u8;32],  //string
-    pub dev_serial: [u8;34],  //string
+    pub dev_serial: [u8;34],  //string. fixed size 34 bytes
     pub unknown2: u32,
     pub unknown3: u32,
     pub unknown4: u32,
-    pub ssid: [u8;64],  //string
-    pub wifi_pass: [u8;64],  //string
+    pub ssid: [u8;64],  //string fixed size 64 bytes
+    pub wifi_pass: [u8;64],  //string fixed size 64 bytes
     pub unknown5: u32,
     pub unknown6: u32,
     pub unknown7: u32,
@@ -76,8 +80,8 @@ pub struct BroadcastResp {
               unknown2: 0u32,
               unknown3: 0u32,
               unknown4: 0u32,
-              ssid: [0;64],  //string
-              wifi_pass: [0;64],  //string
+              ssid: [0; 64],  //string
+              wifi_pass: [0; 64],  //string
               unknown5: 0u32,
               unknown6: 0u32,
               unknown7: 0u32,
@@ -282,4 +286,47 @@ pub fn send_broadcast(socket: &UdpSocket) {
     buf[29] = 0xE6;
     socket.set_broadcast(true);
     socket.send_to(&buf, broadcast_addr);
+}
+
+pub fn send_basic_cmd(socket: &UdpSocket, cmd: u32, operation: u8 , write_value:u8, device_ip: &SocketAddr ) {
+    //Debug
+    //let ip = SocketAddr::new(IpAddr::V4(Ipv4Addr::new(192, 168, 0, 237)), 80);
+    let mut rng = rand::thread_rng();
+    let mut head: Header = Default::default();
+    //let mut buf = vec![];
+    head.cmd = cmd;
+    head.req_conn_id = rng.gen::<u32>(); ; // needs to be changed each time or device is flakey with fast changes.  using rand now,
+    head.cmd_type = 0x02;
+    //head.version = [0x31, 0x2E, 0x36, 0x2E, 0x30, 0x0];  //didnt do anything
+    // must have model or the cmd will not work
+    head.model = [0x45, 0x43, 0x4F, 0x2D, 0x37, 0x38, 0x30, 0x30, 0x34, 0x42, 0x30, 0x31, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00];
+    //head.dev_name = [0x42,0x61,0x73,0x65,0x6D,0x65,0x6E,0x74,0x20,0x63,0x65,0x69,0x6C,0x69,0x6E,0x67,0x6F,0x75,0x73,0x65,0x20,0x4C,0x69,0x67,0x68,0x74,0x73,0x00,0x00,0x00,0x00,0x00];
+    head.seq_counter = 0x55555555; // needs to be changed each time or device is flakey with fast changes.  using rand now, but could be incremented
+    //head.resp_conn_id = 0x41B835C7; //  doesnt do anything
+    head.operation = operation;
+    head.rw_byte = write_value;
+
+    // convert struct to byte stream
+    let buf = pack_header(head);
+    //send packet
+    socket.send_to(&buf, device_ip).expect("error sending");
+
+}
+
+fn pack_header(head: Header) -> Box<Vec<u8>> {
+    let mut buf: Vec<u8> = vec![];
+    buf.write_u32::<LittleEndian>(head.cmd).unwrap();
+    buf.write_u32::<LittleEndian>(head.req_conn_id).unwrap();
+    buf.write_u16::<LittleEndian>(head.cmd_type).unwrap();
+    buf.write_all(&head.version).unwrap();
+    buf.write_all(&head.model).unwrap();
+    buf.write_all(&head.dev_name).unwrap();
+    buf.write_all(&head.serial).unwrap();
+    buf.write_u32::<LittleEndian>(head.resp_status).unwrap();
+    buf.write_u32::<LittleEndian>(head.seq_counter).unwrap();
+    buf.write_u32::<LittleEndian>(head.unknown).unwrap();
+    buf.write_u32::<LittleEndian>(head.resp_conn_id).unwrap();
+    buf.write_u8(head.operation).unwrap();
+    buf.write_u8(head.rw_byte).unwrap();
+    return Box::new (buf)
 }
