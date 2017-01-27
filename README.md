@@ -126,7 +126,7 @@ head.seq_counter = 0x55555555; // should be incremented, but it doesn't really m
 head.operation = 0x02;
 head.rw_byte = 1;  // 1 = on, 0 = off  
 </pre>
-You'll notice that certain fields with in the Header structure need not be set.  These are the minimum required for the switch to be turned on and off.   Below is an example response
+You'll notice that certain fields within the <b>Header</b> structure need not be set.  These are the minimum required for the switch to be turned on and off.   Below is an example response
 you will receive from the device (128 bytes):
 <pre>
 [Cmd: 0x50016, Req Conn ID: 0x84DD0000, cmd_type: 0x0,
