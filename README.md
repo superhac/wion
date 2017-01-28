@@ -147,11 +147,28 @@ Note that the last two bytes (operation, rw_bytes) of the structure are only pre
 <h2>Scheduling</h2>
 <p>These devices contain the ability to autonomously manage set points for turning on and off at specified times. The WiOn product has the ability to store 10 schedules per device.  Other Kab protocol based devices may have more or less.   The header for scheduling is the same as the basic <b>Header<b> with the following additional fields:
 <pre>
-tableEntryCount: u8,
+tableEntryCount: u8, // contains the number of populated "tableEntryStructs" that are following
 entryNum: u8,
 unknown: u16,
-counterType: u8
+counterType: u8  // the type of counter type.  See Appendix
 </pre>
+After this preamble header you get into the scheduling specific data structures.  The first structure is <b>tableEntry</b> and then its followed n (max of 9) number of <b>tableEntryNext</b> structures.  The reason that theres two structure's is the <b>unknown/b> field in <b>tableEntry</b> is four bytes while the same <b>unknown</b> field in <b>tableEntryNext</b> is only a single byte.  I have yet to figure out this discrepancy.
+<pre>
+//tableEntry structure
+daysOfTheWeek: u8,
+unknownBlob: [u8;8],
+startYear: u16, // the year.  E.g the start year of timmr. eg. 2017
+startMonth: u8, // month number 1-12
+startDay: u8, // day of the month.  1-31
+startTimeInSecs: u32, // the time the switch should turn on in seconds that represent military time.  E.g. 75600 = 21:00 hours
+unknown: u16,
+endYear: u16, // the year.  E.g the end year of timer. eg. 2017
+endMonth: u8, // end month number 1-12
+endDay: u8, // end day of the month.  1-31   
+unknown: u16,
+endTimeInSecs: u32 // // the time the switch should turn off in seconds that represent military time.  E.g. 75600 = 21:00 hours
+</pre>
+
 </p>
 <h2>Appendix</h2>
 <h3>Known Commands</h3>
