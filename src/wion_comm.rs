@@ -13,6 +13,10 @@ use rand::Rng;
 const messaging_port: u16 = 80;
 const broadcast_port: u16 = 5888; // or 25
 
+// Commands
+const CMD_BASCI_MODIFY_SWITCH: u32 = 327702;
+const CMD_BASCI_GET_SWITCH_STATUS: u32 = 327703;
+
 //#[allow(dead_code)]
 
 #[derive(Default)]
@@ -317,7 +321,7 @@ fn send_basic_cmd(socket: &UdpSocket, cmd: u32, operation: u8 , write_value:u8, 
     head.cmd_type = 0x02;
     head.model = [0x45, 0x43, 0x4F, 0x2D, 0x37, 0x38, 0x30, 0x30, 0x34, 0x42, 0x30, 0x31, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00];
     head.seq_counter = 0x55555555; // needs to be changed each time or device is flakey with fast changes.  using rand now, but could be incremented
-    head.operation = operation;
+    head.operation = operation; // this appears not to make a difference on modify_switchh.  it can be 1 or 0 and still work???
     head.rw_byte = write_value;
 
     // convert struct to byte stream
@@ -330,7 +334,14 @@ pub fn send_switch_toggle(switch: bool, device_ip: &str, socket: &UdpSocket) {
     let ip: std::net::IpAddr = device_ip.parse().unwrap();
     let dst = SocketAddr::new(ip, messaging_port);
     println!{"Toggling switch at dev ip: {:?}", device_ip};
-    send_basic_cmd(&socket, 327702, 1, switch as u8, &dst );
+    send_basic_cmd(&socket, CMD_BASCI_MODIFY_SWITCH, 1, switch as u8, &dst );
+}
+
+pub fn get_switch_status(device_ip: &str, socket: &UdpSocket) {
+    let ip: std::net::IpAddr = device_ip.parse().unwrap();
+    let dst = SocketAddr::new(ip, messaging_port);
+    println!{"getting switch status at dev ip: {:?}", device_ip};
+    send_basic_cmd(&socket, CMD_BASCI_GET_SWITCH_STATUS, 0, 0, &dst );
 }
 
 fn pack_header(head: Header) -> Box<Vec<u8>> {
