@@ -9,7 +9,6 @@ use std::thread;
 use std::time;
 
 fn main() {
-
     // discover devices
     if true {
         let send_broadcast_sock = wion_comm::broadcast_setup();
