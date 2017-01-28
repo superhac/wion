@@ -171,7 +171,7 @@ unknown: u16,
 endTimeInSecs: u32 // // the time the switch should turn off in seconds that represent military time.
                 E.g. 75600 = 21:00 hours
 </pre>
-The following is the tableEntryNext which can be represented x number of times as dictated by the <b>tableEntryCount</b> field in the header:
+The following is the tableEntryNext structure which can be represented x number of times as dictated by the <b>tableEntryCount</b> field in the header:
 <pre>
 entryNum: u8,
 unknown: u8,
