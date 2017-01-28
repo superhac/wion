@@ -3,6 +3,9 @@
 <img src="https://github.com/superhac/wion/blob/master/docs/imgs/wion_switch.jpg" align=right alt="WiOn Switch" style="width:150px;height:228px;">
 
 <p>This is a very early implementation of KAB enterprises protocol in Rust that is used to control smart plugs and switches.  They are sold under numerous brand names such as WiOn or ECOplugs.</p>
+<h2>Endianness</h2>
+<p>All multi-byte numerical's are transmitted in little endian order.
+</p>
 <h2> Device Discovery </h2>
 <p>  The discovery of devices on the network is achieved by sending a UDP broadcast packet on either port 25 or 5888 to the local network where the device(s) reside. </p>
 <h3>Discovery Request</h3>
@@ -144,7 +147,8 @@ Note that the last two bytes (operation, rw_bytes) of the structure are only pre
 <h2>Scheduling</h2>
 <p>These devices contain the ability to autonomously manage set points for turning on and off at specified times. The WiOn product has the ability to store 10 schedules per device.  Other Kab protocol based devices may have more or less.   The header for scheduling is almost identical to the basic header
 </p>
-<h2>Known Commands</h2>
+<h2>Appendix</h2>
+<h3>Known Commands</h3>
 <p>Below is a list of the known commands:
 <pre>
 public static final int CMD_BASCI_CONNECT_ROUTER = 327697;
@@ -210,4 +214,18 @@ public static final int UM_MESSAGE_TODAYSCHEUPDATE = 1605655;
 public static final int UM_MESSAGE_UPDATEFIRMWAREEND = 1605652;
 public static final int UM_MESSAGE_WIFIUPDATE = 1605634;
 </pre>
+</p>
+<h3>Day of The Week Mask</h2>
+<p>
+The field within the <b>schedule</b> structure specified by daysOfTheWeek (u8) is decoded with the following bit masks:
+<pre>
+Sunday = 0x40
+Monday = 0x20
+Tuesday = 0x10
+Wednesday = 0x08
+Thursday = 0x04
+Friday = 0x02
+Saturday = 0x01
+</pre>
+Since this is a mask, multiple values are possible.   E.g. Monday, Tuesday, and Saturday can be represented within the byte,  
 </p>
