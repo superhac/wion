@@ -152,7 +152,7 @@ entryNum: u8,
 unknown: u16,
 counterType: u8  // the type of counter type.  See Appendix
 </pre>
-After this preamble header you get into the scheduling specific data structures.  The first structure is <b>tableEntry</b> and then its followed n (max of 9) number of <b>tableEntryNext</b> structures.  The reason that theres two structure's is the <b>unknown/b> field in <b>tableEntry</b> is four bytes while the same <b>unknown</b> field in <b>tableEntryNext</b> is only a single byte.  I have yet to figure out this discrepancy.
+After this preamble header you get into the scheduling specific data structures.  The first structure is <b>tableEntry</b> and then its followed n (max of 9) number of <b>tableEntryNext</b> structures.  The reason that theres two structure's is the <b>unknown</b> field in <b>tableEntry</b> is four bytes while the same <b>unknown</b> field in <b>tableEntryNext</b> is only a single byte.  I have yet to figure out this discrepancy.
 <pre>
 //tableEntry structure
 daysOfTheWeek: u8,
