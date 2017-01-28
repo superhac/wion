@@ -145,7 +145,7 @@ head.rw_byte = 0;  // 1 = on, 0 = off
 </pre>
 Note that the last two bytes (operation, rw_bytes) of the structure are only present on "Requests".  Thus the base size of a request is 130 bytes, while the base response packet size is 128 bytes.</p>
 <h2>Scheduling</h2>
-<p>These devices contain the ability to autonomously manage set points for turning on and off at specified times. The WiOn product has the ability to store 10 schedules per device.  Other Kab protocol based devices may have more or less.   The header for scheduling is the same as the basic <b>Header<b> with the following additional fields:
+<p>These devices contain the ability to autonomously manage set points for turning on and off at specified times. The WiOn product has the ability to store 10 schedules per device.  Other Kab protocol based devices may have more or less.   The header for scheduling is the same as the basic <b>Header</b> with the following additional fields:
 <pre>
 tableEntryCount: u8, // contains the number of populated "tableEntryStructs" that are following
 entryNum: u8,
