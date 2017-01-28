@@ -147,7 +147,8 @@ Note that the last two bytes (operation, rw_bytes) of the structure are only pre
 <h2>Scheduling</h2>
 <p>These devices contain the ability to autonomously manage set points for turning on and off at specified times. The WiOn product has the ability to store 12 schedules per device.  Other Kab protocol based devices may have more or less.   The header for scheduling is the same as the basic <b>Header</b> with the following additional fields:
 <pre>
-tableEntryCount: u8, // contains the number of populated "tableEntryStructs" that are following
+tableEntryCount: u8, // contains the total number of populated "tableEntry*" structs that are following.  When I refer
+                        populated its means there are x number of TableEntry structs represented in the packet.
 entryNum: u8,
 unknown: u16,
 counterType: u8  // the type of counter type.  See Appendix
