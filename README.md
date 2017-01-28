@@ -139,18 +139,20 @@ you will receive from the device (128 bytes):
  Version: 1.6.0, Model: ECO-78004B01, Dev_name: Basement test, Serial: 78004B01,
  Resp_Status: 0x7E11DC5E, Seq Counter: 1431655765, Unknown: 0 Resp Conn ID: 0x0]
 </pre>
-The way you toggle the switch off is to use the same populated <b>Header</b> structure as above, except you set the <b>rwByte</b> field to 0 as shown below:
+Note that the last two bytes (operation, rw_bytes) of the structure are only present on "Requests".  Thus the base size of a request is 130 bytes,
+while the base response packet size is 128 bytes.  The way you toggle the switch off is to use the same populated <b>Header</b>
+structure as above, except you set the <b>rwByte</b> field to 0 as shown below:
 <pre>
 head.rw_byte = 0;  // 1 = on, 0 = off
 </pre>
-Note that the last two bytes (operation, rw_bytes) of the structure are only present on "Requests".  Thus the base size of a request is 130 bytes, while the base response packet size is 128 bytes.</p>
+</p>
 <h2>Get Switch Status</h2>
 <p>Retrieving the switch status: CMD_BASCI_GET_SWITCH_STATUS:
 <pre>
 head.cmd = 327703; // <a href="https://github.com/superhac/wion#known-commands">CMD_BASCI_GET_SWITCH_STATUS</a>
 head.req_conn_id = rng.gen::<u32>(); ; // needs to be changed each time or device is flaky with fast changes.  
                                           using rand now,
-head.cmd_type = 0x02;
+head.cmd_type = 0x00; // set to zero?  works set to 2 also.  
 // must have model or the  device will not on turn
 head.model = [0x45, 0x43, 0x4F, 0x2D, 0x37, 0x38, 0x30, 0x30, 0x34, 0x42, 0x30, 0x31, 0x00, 0x00,
               0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
@@ -158,8 +160,7 @@ head.model = [0x45, 0x43, 0x4F, 0x2D, 0x37, 0x38, 0x30, 0x30, 0x34, 0x42, 0x30, 
 head.seq_counter = 0x55555555; // should be incremented, but it doesn't really matter, used for tracking
 
 //additional fields after the basic "header"
-head.operation = 0x00;  // 0x02 for write, 0x00 for read
-head.rw_byte = 1;  // 1 = on, 0 = off.  Doesnt matter for status
+<none>
 </pre>
 The response appears as follows:
 <pre>
@@ -168,7 +169,7 @@ The response appears as follows:
  Resp_Status: 0x7E11E25D, Seq Counter: 1431655765, Unknown: 0 Resp Conn ID: 0x0,
  Operation: 1, rwByte: 0]
 </pre>
-The <b>rwByte</b> signifies if the switch is on or off.  0 = off, 1 = on. 
+The <b>rwByte</b> signifies if the switch is on or off.  0 = off, 1 = on.
 </p>
 <h2>Scheduling</h2>
 <p>These devices contain the ability to autonomously manage set points for turning on and off at specified times. The WiOn product has the ability to store 12 schedules per device.  Other Kab protocol based devices may have more or less.   The header for scheduling is the same as the basic <b>Header</b> with the following additional fields:

@@ -313,17 +313,30 @@ pub fn send_broadcast(socket: &UdpSocket) {
     socket.send_to(&buf, broadcast_addr);
 }
 
-fn send_basic_cmd(socket: &UdpSocket, cmd: u32, operation: u8 , write_value:u8, device_ip: &SocketAddr ) {
+fn send_basic_modify(socket: &UdpSocket, write_value:u8, device_ip: &SocketAddr ) {
     let mut rng = rand::thread_rng();
     let mut head: Header = Default::default();
-    head.cmd = cmd;
+    head.cmd = CMD_BASCI_MODIFY_SWITCH;
     head.req_conn_id = rng.gen::<u32>(); ; // needs to be changed each time or device is flakey with fast changes.  using rand now,
     head.cmd_type = 0x02;
     head.model = [0x45, 0x43, 0x4F, 0x2D, 0x37, 0x38, 0x30, 0x30, 0x34, 0x42, 0x30, 0x31, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00];
     head.seq_counter = 0x55555555; // needs to be changed each time or device is flakey with fast changes.  using rand now, but could be incremented
-    head.operation = operation; // this appears not to make a difference on modify_switchh.  it can be 1 or 0 and still work???
+    head.operation = 0x01; // this appears not to make a difference on modify_switchh.  it can be 1 or 0 and still work???
     head.rw_byte = write_value;
+    // convert struct to byte stream
+    let buf = pack_header(head);
+    //send packet
+    socket.send_to(&buf, device_ip).expect("error sending");
+}
 
+fn send_basic_cmd(socket: &UdpSocket, cmd: u32, cmd_type: u16, device_ip: &SocketAddr ) {
+    let mut rng = rand::thread_rng();
+    let mut head: Header = Default::default();
+    head.cmd = cmd;
+    head.req_conn_id = rng.gen::<u32>(); ; // needs to be changed each time or device is flakey with fast changes.  using rand now,
+    head.cmd_type = cmd_type;
+    head.model = [0x45, 0x43, 0x4F, 0x2D, 0x37, 0x38, 0x30, 0x30, 0x34, 0x42, 0x30, 0x31, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00];
+    head.seq_counter = 0x55555555; // needs to be changed each time or device is flakey with fast changes.  using rand now, but could be incremented
     // convert struct to byte stream
     let buf = pack_header(head);
     //send packet
@@ -334,14 +347,14 @@ pub fn send_switch_toggle(switch: bool, device_ip: &str, socket: &UdpSocket) {
     let ip: std::net::IpAddr = device_ip.parse().unwrap();
     let dst = SocketAddr::new(ip, messaging_port);
     println!{"Toggling switch at dev ip: {:?}", device_ip};
-    send_basic_cmd(&socket, CMD_BASCI_MODIFY_SWITCH, 1, switch as u8, &dst );
+    send_basic_modify(&socket, switch as u8, &dst );
 }
 
 pub fn get_switch_status(device_ip: &str, socket: &UdpSocket) {
     let ip: std::net::IpAddr = device_ip.parse().unwrap();
     let dst = SocketAddr::new(ip, messaging_port);
     println!{"getting switch status at dev ip: {:?}", device_ip};
-    send_basic_cmd(&socket, CMD_BASCI_GET_SWITCH_STATUS, 0, 0, &dst );
+    send_basic_cmd(&socket, CMD_BASCI_GET_SWITCH_STATUS, 0x00, &dst );
 }
 
 fn pack_header(head: Header) -> Box<Vec<u8>> {
@@ -357,7 +370,9 @@ fn pack_header(head: Header) -> Box<Vec<u8>> {
     buf.write_u32::<LittleEndian>(head.seq_counter).unwrap();
     buf.write_u32::<LittleEndian>(head.unknown).unwrap();
     buf.write_u32::<LittleEndian>(head.resp_conn_id).unwrap();
-    buf.write_u8(head.operation).unwrap();
-    buf.write_u8(head.rw_byte).unwrap();
+    if head.cmd == CMD_BASCI_MODIFY_SWITCH {
+        buf.write_u8(head.operation).unwrap();
+        buf.write_u8(head.rw_byte).unwrap();
+    }
     return Box::new (buf)
 }
