@@ -33,7 +33,6 @@ pub struct Header {
 }
 
 #[allow(dead_code)]
-
 pub struct BroadcastResp {
     pub unknown: u32,
     pub version: [u8;6], //string
@@ -335,8 +334,8 @@ fn send_basic_cmd(socket: &UdpSocket, cmd: u32, operation: u8 , write_value:u8, 
 
 pub fn send_switch_toggle(switch: bool, device_ip: &str, socket: &UdpSocket) {
     let ip: std::net::IpAddr = device_ip.parse().unwrap();
-    let dst = SocketAddr::new(ip, 80);
-    println!{"Toggling wwith at dev ip: {:?}", device_ip};
+    let dst = SocketAddr::new(ip, messaging_port);
+    println!{"Toggling switch at dev ip: {:?}", device_ip};
     send_basic_cmd(&socket, 327702, 1, switch as u8, &dst );
 }
 
