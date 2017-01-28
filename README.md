@@ -99,10 +99,10 @@ pub struct Header {
     pub cmd: u32,
     pub req_conn_id: u32,
     pub cmd_type: u16,
-    pub version: [u8;6], //Convert to String
-    pub model: [u8;32],  //Convert to String
-    pub dev_name: [u8;32],  //Convert to String
-    pub serial: [u8;32],  //Convert to String
+    pub version: [u8;6], //Convert to String - Fixed length (unused bytes are nulled, 0x00)
+    pub model: [u8;32],  //Convert to String - Fixed length (unused bytes are nulled, 0x00)
+    pub dev_name: [u8;32],  //Convert to String - Fixed length (unused bytes are nulled, 0x00)
+    pub serial: [u8;32],  //Convert to String - Fixed length (unused bytes are nulled, 0x00)
     pub resp_status: u32,
     pub seq_counter: u32,
     pub unknown: u32,
@@ -135,7 +135,7 @@ you will receive from the device (128 bytes):
 </pre>
 The way you toggle the switch off is to use the same populated <b>Header</b> structure as above, except you set the <b>rwByte</b> field to 0 as shown below:
 <pre>
-head.rw_byte = 0;  // 1 = on, 0 = off 
+head.rw_byte = 0;  // 1 = on, 0 = off
 </pre>
 </p>
 <h2>Known Commands</h2>
