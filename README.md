@@ -145,7 +145,13 @@ head.rw_byte = 0;  // 1 = on, 0 = off
 </pre>
 Note that the last two bytes (operation, rw_bytes) of the structure are only present on "Requests".  Thus the base size of a request is 130 bytes, while the base response packet size is 128 bytes.</p>
 <h2>Scheduling</h2>
-<p>These devices contain the ability to autonomously manage set points for turning on and off at specified times. The WiOn product has the ability to store 10 schedules per device.  Other Kab protocol based devices may have more or less.   The header for scheduling is almost identical to the basic header
+<p>These devices contain the ability to autonomously manage set points for turning on and off at specified times. The WiOn product has the ability to store 10 schedules per device.  Other Kab protocol based devices may have more or less.   The header for scheduling is the same as the basic <b>Header<b> with the following additional fields:
+<pre>
+tableEntryCount: u8,
+entryNum: u8,
+unknown: u16,
+counterType: u8
+</pre>
 </p>
 <h2>Appendix</h2>
 <h3>Known Commands</h3>
@@ -215,7 +221,7 @@ public static final int UM_MESSAGE_UPDATEFIRMWAREEND = 1605652;
 public static final int UM_MESSAGE_WIFIUPDATE = 1605634;
 </pre>
 </p>
-<h3>Day of The Week Mask</h2>
+<h3>daysOfTheWeek</h2>
 <p>
 The field within the <b>schedule</b> structure specified by <b>daysOfTheWeek</b> (u8) is decoded with the following bit masks:
 <pre>
@@ -228,4 +234,11 @@ Friday = 0x02
 Saturday = 0x01
 </pre>
 Since this is a mask, multiple values are possible.   E.g. Monday, Tuesday, and Saturday can be represented within the byte,  
+</p>
+<h3>counterType</h2>
+<p>Schedules have diffferent counter types.  These are the known ones:
+<pre>
+programable_timer = 0x02
+countDownTimer = 0x00;
+</pre>
 </p>
