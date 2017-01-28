@@ -116,7 +116,7 @@ pub struct Header {
 <p>The switch can be turned by loading and transmitting the following structure to the device:
 <pre>
 //Header minimum fields
-head.cmd = 327702;
+head.cmd = 327702; // <a href="https://github.com/superhac/wion#known-commands">CMD_BASCI_MODIFY_SWITCH</a>
 head.req_conn_id = rng.gen::<u32>(); ; // needs to be changed each time or device is flaky with fast changes.  
                                           using rand now,
 head.cmd_type = 0x02;
