@@ -133,6 +133,10 @@ you will receive from the device (128 bytes):
  Version: 1.6.0, Model: ECO-78004B01, Dev_name: Basement test, Serial: 78004B01,
  Resp_Status: 0x7E11DC5E, Seq Counter: 1431655765, Unknown: 0 Resp Conn ID: 0x0]
 </pre>
+The way you toggle the switch off is to use the same populated <b>Header</b> structure as above, except you set the <b>rwByte</b> field to 0 as shown below:
+<pre>
+head.rw_byte = 0;  // 1 = on, 0 = off 
+</pre>
 </p>
 <h2>Known Commands</h2>
 <p>Below is a list of the known commands:
