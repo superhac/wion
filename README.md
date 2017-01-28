@@ -172,6 +172,12 @@ The response appears as follows:
 Notice that the two additional fields added to the response packet.  These are the same additional fields that are used for
 toggling the switch on and off. The <b>rwByte</b> signifies if the switch is on or off.  0 = off, 1 = on.
 </p>
+<h2>Get Rom Status</h2>
+<p>WIP - Below is the additional payload (42 bytes) form a get rom status request. This is just the addtional fields.  Does not include the basic header.  
+<pre>
+0000D0070101000000000000000033080101000000000000000000938CC1FA766FFC64D7B750B0000000
+</pre>
+</p>
 <h2>Scheduling</h2>
 <p>These devices contain the ability to autonomously manage set points for turning on and off at specified times. The WiOn product has the ability to store 12 schedules per device.  Other Kab protocol based devices may have more or less.   The header for scheduling is the same as the basic <b>Header</b> with the following additional fields:
 <pre>

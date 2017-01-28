@@ -16,6 +16,7 @@ const broadcast_port: u16 = 5888; // or 25
 // Commands
 const CMD_BASCI_MODIFY_SWITCH: u32 = 327702;
 const CMD_BASCI_GET_SWITCH_STATUS: u32 = 327703;
+const CMD_BASCI_GET_RDM_STATUS:u32 = 327713;
 
 //#[allow(dead_code)]
 
@@ -346,15 +347,22 @@ fn send_basic_cmd(socket: &UdpSocket, cmd: u32, cmd_type: u16, device_ip: &Socke
 pub fn send_switch_toggle(switch: bool, device_ip: &str, socket: &UdpSocket) {
     let ip: std::net::IpAddr = device_ip.parse().unwrap();
     let dst = SocketAddr::new(ip, messaging_port);
-    println!{"Toggling switch at dev ip: {:?}", device_ip};
+    println!{"Toggling switch for dev ip: {:?}", device_ip};
     send_basic_modify(&socket, switch as u8, &dst );
 }
 
 pub fn get_switch_status(device_ip: &str, socket: &UdpSocket) {
     let ip: std::net::IpAddr = device_ip.parse().unwrap();
     let dst = SocketAddr::new(ip, messaging_port);
-    println!{"getting switch status at dev ip: {:?}", device_ip};
+    println!{"getting switch status for dev ip: {:?}", device_ip};
     send_basic_cmd(&socket, CMD_BASCI_GET_SWITCH_STATUS, 0x00, &dst );
+}
+
+pub fn get_rom_status(device_ip: &str, socket: &UdpSocket) {
+    let ip: std::net::IpAddr = device_ip.parse().unwrap();
+    let dst = SocketAddr::new(ip, messaging_port);
+    println!{"getting rom status for dev ip: {:?}", device_ip};
+    send_basic_cmd(&socket, CMD_BASCI_GET_RDM_STATUS, 0x00, &dst );
 }
 
 fn pack_header(head: Header) -> Box<Vec<u8>> {
