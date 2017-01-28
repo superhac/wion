@@ -156,7 +156,7 @@ counterType: u8  // the type of counter type.  See Appendix
 After this preamble header you get into the scheduling specific data structures.  The first structure is <b>tableEntry</b> and then its followed n (max of 11 for WiOn) number of <b>tableEntryNext</b> structures.  The reason that theres two structure's is the <b>unknown</b> field in <b>tableEntry</b> is four bytes while the same <b>unknown</b> field in <b>tableEntryNext</b> is only a single byte.  I have yet to figure out this discrepancy.
 <pre>
 //tableEntry structure
-<a href="https://github.com/superhac/wion#daysoftheweek">daysOfTheWeek</>: u8,
+<a href="https://github.com/superhac/wion#daysoftheweek">daysOfTheWeek</a>: u8,
 unknownBlob: [u8;8],
 startYear: u16, // the year.  E.g the start year of timmr. eg. 2017
 startMonth: u8, // month number 1-12
