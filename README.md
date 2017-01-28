@@ -173,6 +173,7 @@ endTimeInSecs: u32 // // the time the switch should turn off in seconds that rep
 </pre>
 The following is the tableEntryNext structure which can be represented x number of times as dictated by the <b>tableEntryCount</b> field in the header:
 <pre>
+// tableEntryNext structure
 entryNum: u8,
 unknown: u8,
 counterType: u8 , // the type of counter type.  See Appendix
