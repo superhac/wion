@@ -140,7 +140,7 @@ you will receive from the device (128 bytes):
  Resp_Status: 0x7E11DC5E, Seq Counter: 1431655765, Unknown: 0 Resp Conn ID: 0x0]
 </pre>
 Note that the last two bytes (operation, rw_bytes) of the structure are only present on "Requests".  Thus the base size of a request is 130 bytes,
-while the base response packet size is 128 bytes.  The way you toggle the switch off is to use the same populated <b>Header</b>
+while the base response packet size is 128 bytes.</p><p>The way you toggle the switch off is to use the same populated <b>Header</b>
 structure as above, except you set the <b>rwByte</b> field to 0 as shown below:
 <pre>
 head.rw_byte = 0;  // 1 = on, 0 = off
