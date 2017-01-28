@@ -149,7 +149,7 @@ Note that the last two bytes (operation, rw_bytes) of the structure are only pre
 <pre>
 tableEntryCount: u8, // contains the total number of populated "tableEntry*" structs that are following.  When I refer
                         populated its means there are x number of TableEntry structs represented in the packet.
-entryNum: u8,
+entryNum: u8,  // the entry number in the table. 0-11 for wion.  only populated when theres valid timer in the entry
 unknown: u16,
 counterType: u8  // the type of counter type.  See Appendix
 </pre>

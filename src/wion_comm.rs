@@ -310,22 +310,16 @@ pub fn send_broadcast(socket: &UdpSocket) {
 }
 
 fn send_basic_cmd(socket: &UdpSocket, cmd: u32, operation: u8 , write_value:u8, device_ip: &SocketAddr ) {
-    //Debug
-    //let ip = SocketAddr::new(IpAddr::V4(Ipv4Addr::new(192, 168, 0, 237)), 80);
     let mut rng = rand::thread_rng();
     let mut head: Header = Default::default();
-    //let mut buf = vec![];
     head.cmd = cmd;
     head.req_conn_id = rng.gen::<u32>(); ; // needs to be changed each time or device is flakey with fast changes.  using rand now,
     head.cmd_type = 0x02;
-    //head.version = [0x31, 0x2E, 0x36, 0x2E, 0x30, 0x0];  //didnt do anything
-    // must have model or the cmd will not work
     head.model = [0x45, 0x43, 0x4F, 0x2D, 0x37, 0x38, 0x30, 0x30, 0x34, 0x42, 0x30, 0x31, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00];
-    //head.dev_name = [0x42,0x61,0x73,0x65,0x6D,0x65,0x6E,0x74,0x20,0x63,0x65,0x69,0x6C,0x69,0x6E,0x67,0x6F,0x75,0x73,0x65,0x20,0x4C,0x69,0x67,0x68,0x74,0x73,0x00,0x00,0x00,0x00,0x00]; // not required to match device
     head.seq_counter = 0x55555555; // needs to be changed each time or device is flakey with fast changes.  using rand now, but could be incremented
-    //head.resp_conn_id = 0x41B835C7; //  doesnt do anything
     head.operation = operation;
     head.rw_byte = write_value;
+
     // convert struct to byte stream
     let buf = pack_header(head);
     //send packet
