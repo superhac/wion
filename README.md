@@ -147,9 +147,11 @@ Note that the last two bytes (operation, rw_bytes) of the structure are only pre
 <h2>Scheduling</h2>
 <p>These devices contain the ability to autonomously manage set points for turning on and off at specified times. The WiOn product has the ability to store 12 schedules per device.  Other Kab protocol based devices may have more or less.   The header for scheduling is the same as the basic <b>Header</b> with the following additional fields:
 <pre>
-tableEntryCount: u8, // contains the total number of populated "tableEntry*" structs that are following.  When I refer
-                        populated its means there are x number of TableEntry structs represented in the packet.
-entryNum: u8,  // the entry number in the table. 0-11 for wion.  only populated when theres valid timer in the entry
+tableEntryCount: u8, // contains the total number of populated "tableEntry*" structs
+                        that are following.  When I refer populated its means
+                        there are x number of TableEntry structs represented in the packet.
+entryNum: u8,  // the entry number in the table. 0-11 for wion.  
+                  only populated when theres valid timer in the entry
 unknown: u16,
 counterType: u8  // the type of counter type.  See Appendix
 </pre>
@@ -174,7 +176,8 @@ endTimeInSecs: u32 // // the time the switch should turn off in seconds that rep
 The following is the tableEntryNext structure which can be represented x number of times as dictated by the <b>tableEntryCount</b> field in the header:
 <pre>
 // tableEntryNext structure
-entryNum: u8,
+entryNum: u8, // the entry number in the table. 0-11 for WiOn.  only populated when theres
+                 valid timer in the entry
 unknown: u8,
 counterType: u8 , // the type of counter type.  See Appendix
 struct tableEntry,  //  x number of times per the  <b>tableEntryCount</b> field.
