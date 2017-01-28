@@ -169,7 +169,8 @@ The response appears as follows:
  Resp_Status: 0x7E11E25D, Seq Counter: 1431655765, Unknown: 0 Resp Conn ID: 0x0,
  <b>Operation: 1, rwByte: 0</b>]
 </pre>
-Notice that the two fields specified in toggle the switch have been added to the response packet. The <b>rwByte</b> signifies if the switch is on or off.  0 = off, 1 = on.
+Notice that the two additional fields added to the response packet.  These are the same additional fields that are used for
+toggling the switch on and off. The <b>rwByte</b> signifies if the switch is on or off.  0 = off, 1 = on.
 </p>
 <h2>Scheduling</h2>
 <p>These devices contain the ability to autonomously manage set points for turning on and off at specified times. The WiOn product has the ability to store 12 schedules per device.  Other Kab protocol based devices may have more or less.   The header for scheduling is the same as the basic <b>Header</b> with the following additional fields:
