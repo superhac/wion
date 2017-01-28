@@ -35,9 +35,17 @@ fn main() {
     }
 
     //get rom status
-    if true {
+    if false {
         wion_comm::get_rom_status("192.168.0.237", &msg_sock);
         thread::sleep(time::Duration::from_millis(5000));
     }
+
+    //get switch settings
+    //get rom status
+    if true {
+        wion_comm::get_switch_settings("192.168.0.237", &msg_sock);
+        thread::sleep(time::Duration::from_millis(5000));
+    }
+
 
 }

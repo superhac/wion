@@ -17,7 +17,7 @@ const broadcast_port: u16 = 5888; // or 25
 const CMD_BASCI_MODIFY_SWITCH: u32 = 327702;
 const CMD_BASCI_GET_SWITCH_STATUS: u32 = 327703;
 const CMD_BASCI_GET_RDM_STATUS:u32 = 327713;
-
+const CMD_BASCI_GET_SETTING: u32 = 327685;
 //#[allow(dead_code)]
 
 #[derive(Default)]
@@ -364,6 +364,15 @@ pub fn get_rom_status(device_ip: &str, socket: &UdpSocket) {
     println!{"getting rom status for dev ip: {:?}", device_ip};
     send_basic_cmd(&socket, CMD_BASCI_GET_RDM_STATUS, 0x00, &dst );
 }
+
+pub fn get_switch_settings(device_ip: &str, socket: &UdpSocket) {
+    let ip: std::net::IpAddr = device_ip.parse().unwrap();
+    let dst = SocketAddr::new(ip, messaging_port);
+    println!{"getting rom status for dev ip: {:?}", device_ip};
+    send_basic_cmd(&socket, CMD_BASCI_GET_SETTING, 0x00, &dst );
+}
+
+
 
 fn pack_header(head: Header) -> Box<Vec<u8>> {
     let mut buf: Vec<u8> = vec![];
