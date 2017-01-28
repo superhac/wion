@@ -127,7 +127,7 @@ head.operation = 0x02;
 head.rw_byte = 1;  // 1 = on, 0 = off  
 </pre>
 You'll notice that certain fields within the <b>Header</b> structure need not be set.  These are the minimum required for the switch to be turned on and off.  Its important that
-you set the <b>model<b> field to your specific device.  The model field is a combination of "ECO-" and the serial number of your device.  Use the discovery packet to identified
+you set the <b>model</b> field to your specific device.  The model field is a combination of "ECO-" and the serial number of your device.  Use the discovery packet to identified
 this field.  Below is an example response:
 you will receive from the device (128 bytes):
 <pre>
