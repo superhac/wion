@@ -160,13 +160,15 @@ unknownBlob: [u8;8],
 startYear: u16, // the year.  E.g the start year of timmr. eg. 2017
 startMonth: u8, // month number 1-12
 startDay: u8, // day of the month.  1-31
-startTimeInSecs: u32, // the time the switch should turn on in seconds that represent military time.  E.g. 75600 = 21:00 hours
+startTimeInSecs: u32, // the time the switch should turn on in seconds that represent military time.
+                  E.g. 75600 = 21:00 hours
 unknown: u16,
 endYear: u16, // the year.  E.g the end year of timer. eg. 2017
 endMonth: u8, // end month number 1-12
 endDay: u8, // end day of the month.  1-31   
 unknown: u16,
-endTimeInSecs: u32 // // the time the switch should turn off in seconds that represent military time.  E.g. 75600 = 21:00 hours
+endTimeInSecs: u32 // // the time the switch should turn off in seconds that represent military time.
+                E.g. 75600 = 21:00 hours
 </pre>
 
 </p>
