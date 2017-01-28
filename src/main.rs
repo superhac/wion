@@ -24,5 +24,4 @@ fn main() {
     thread::sleep(time::Duration::from_millis(5000));
     wion_comm::send_switch_toggle(false, "192.168.0.237", &msg_sock);
     thread::sleep(time::Duration::from_millis(5000));
-
 }
