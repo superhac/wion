@@ -217,7 +217,7 @@ public static final int UM_MESSAGE_WIFIUPDATE = 1605634;
 </p>
 <h3>Day of The Week Mask</h2>
 <p>
-The field within the <b>schedule</b> structure specified by daysOfTheWeek (u8) is decoded with the following bit masks:
+The field within the <b>schedule</b> structure specified by <b>daysOfTheWeek</b> (u8) is decoded with the following bit masks:
 <pre>
 Sunday = 0x40
 Monday = 0x20
