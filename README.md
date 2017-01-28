@@ -121,12 +121,14 @@ head.cmd_type = 0x02;
 // must have model or the  device will not on turn
 head.model = [0x45, 0x43, 0x4F, 0x2D, 0x37, 0x38, 0x30, 0x30, 0x34, 0x42, 0x30, 0x31, 0x00, 0x00,
               0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-              0x00, 0x00, 0x00, 0x00];
+              0x00, 0x00, 0x00, 0x00];  // translates to "ECO-78004B01" with null pads.
 head.seq_counter = 0x55555555; // should be incremented, but it doesn't really matter, used for tracking
 head.operation = 0x02;
 head.rw_byte = 1;  // 1 = on, 0 = off  
 </pre>
-You'll notice that certain fields within the <b>Header</b> structure need not be set.  These are the minimum required for the switch to be turned on and off.   Below is an example response
+You'll notice that certain fields within the <b>Header</b> structure need not be set.  These are the minimum required for the switch to be turned on and off.  Its important that
+you set the <b>model<b> field to your specific device.  The model field is a combination of "ECO-" and the serial number of your device.  Use the discovery packet to identified
+this field.  Below is an example response:
 you will receive from the device (128 bytes):
 <pre>
 [Cmd: 0x50016, Req Conn ID: 0x84DD0000, cmd_type: 0x0,
