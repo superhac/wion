@@ -162,14 +162,23 @@ pub struct BroadcastResp {
 
       // data section based on cmd
       if head.cmd == CMD_BASCI_MODIFY_SWITCH {
-          head.cmdSpecificData = DataSection::Segment(Set_status_data_section::default());
+
           match head.cmdSpecificData {
               DataSection::Segment(ref mut ds) => {
+                 // do nothiing.  just a th header
+              },
+          }
+      } else if head.cmd == CMD_BASCI_GET_SWITCH_STATUS {
+            head.cmdSpecificData = DataSection::Segment(Set_status_data_section::default());
+          match head.cmdSpecificData {
+              DataSection::Segment(ref mut ds) => {
+                    println!("recd status");
                   ds.operation = try!(buf.read_u8());
                   ds.rw_byte = try!(buf.read_u8());
               },
           }
       }
+
       Ok(head)
   }
 
@@ -239,6 +248,7 @@ pub fn dump_packet_header(head: Header) {
 }
 
 pub fn dump_packet_broadcast(bresp: BroadcastResp) {
+    println!("Broadcast Packet Resp");
     println!("Unknown: 0x{:X}", bresp.unknown);
     println!("Version: {}", str::from_utf8(&bresp.version).unwrap());
     println!("Model: {}", str::from_utf8(&bresp.dev_model).unwrap());
@@ -362,16 +372,20 @@ pub fn send_broadcast(socket: &UdpSocket) {
 fn send_basic_modify(socket: &UdpSocket, write_value:u8, device_ip: &SocketAddr ) {
     let mut rng = rand::thread_rng();
     let mut head: Header = Default::default();
-    let mut data = Set_status_data_section::default();
-    let mut ds = DataSection::Segment(data);
+    head.cmdSpecificData = DataSection::Segment(Set_status_data_section::default());
+
     head.cmd = CMD_BASCI_MODIFY_SWITCH;
     head.req_conn_id = rng.gen::<u32>(); ; // needs to be changed each time or device is flakey with fast changes.  using rand now,
     head.cmd_type = 0x02;
     head.model = [0x45, 0x43, 0x4F, 0x2D, 0x37, 0x38, 0x30, 0x30, 0x34, 0x42, 0x30, 0x31, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00];
     head.seq_counter = 0x55555555; // needs to be changed each time or device is flakey with fast changes.  using rand now, but could be incremented
-    data.operation = 0x01; // this appears not to make a difference on modify_switchh.  it can be 1 or 0 and still work???
-    data.rw_byte = write_value;
 
+    match head.cmdSpecificData {
+        DataSection::Segment(ref mut ds) => {
+            ds.operation = 0x01; // this appears not to make a difference on modify_switchh.  it can be 1 or 0 and still work???
+            ds.rw_byte = write_value;
+        }
+    }
     // convert struct to byte stream
     let buf = pack_header(head);
     //send packet
@@ -434,11 +448,13 @@ fn pack_header(head: Header) -> Box<Vec<u8>> {
     buf.write_u32::<LittleEndian>(head.unknown).unwrap();
     buf.write_u32::<LittleEndian>(head.resp_conn_id).unwrap();
 
+    if head.cmd == CMD_BASCI_MODIFY_SWITCH {
     match head.cmdSpecificData {
         DataSection::Segment(ref ds) => {
             buf.write_u8(ds.operation).unwrap();
             buf.write_u8(ds.rw_byte).unwrap();
         },
     }
+}
     return Box::new (buf)
 }
