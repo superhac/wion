@@ -18,9 +18,8 @@ const CMD_BASCI_MODIFY_SWITCH: u32 = 327702;
 const CMD_BASCI_GET_SWITCH_STATUS: u32 = 327703;
 const CMD_BASCI_GET_RDM_STATUS:u32 = 327713;
 const CMD_BASCI_GET_SETTING: u32 = 327685;
-//#[allow(dead_code)]
 
-#[derive(Default)]
+
 pub struct Header {
     pub cmd: u32,
     pub req_conn_id: u32,
@@ -33,6 +32,39 @@ pub struct Header {
     pub seq_counter: u32,
     pub unknown: u32,
     pub resp_conn_id: u32,
+    // End of Header on all msgs.... the next payloads are depend on the cmd and if its a
+    // request or response packet.
+    pub cmdSpecificData: DataSection,
+}
+
+impl Default for Header {
+    fn default() -> Self {
+        Header {
+            cmd: 0x00,
+            req_conn_id: 0x00,
+            cmd_type: 0x00,
+            version: [0;6], //Convert to String
+            model: [0;32],  //Convert to String
+            dev_name: [0;32],  //Convert to Strorder rust
+            serial: [0;32],  //Convert to String
+            resp_status: 0x00,
+            seq_counter: 0x00,
+            unknown: 0x00,
+            resp_conn_id: 0x00,
+            cmdSpecificData: DataSection::Segment(Set_status_data_section::default()),
+        }
+    }
+}
+
+pub enum DataSection {
+    Segment(Set_status_data_section),
+    //Data(Payload2),
+}
+
+#[derive(Default, Debug)]
+pub struct Set_status_data_section {
+    //used for the following cmds:
+    // CMD_BASCI_MODIFY_SWITCH, CMD_BASCI_GET_SWITCH_STATUS
     pub operation: u8, // read or write? Field only on requests.  Field only seen on requests.
     pub rw_byte: u8, // what byte to read or write to?  Field only on requests.
 }
@@ -112,31 +144,38 @@ pub struct BroadcastResp {
       }
   }
 
-pub fn head_parse(buf: Vec<u8>) -> Result<Box<Header>, std::io::Error>  {
-    // req = 130 bytes, resp is 128 bytes
-    let mut head: Box<Header> = Box::new(Default::default());
-    let mut buf =  Cursor::new(buf);
-    head.cmd = try!(buf.read_u32::<LittleEndian>());
-    head.req_conn_id = try!(buf.read_u32::<LittleEndian>());
-    head.cmd_type = try!(buf.read_u16::<LittleEndian>());
-    try!(buf.read_exact(&mut head.version));
-    try!(buf.read_exact(&mut head.model));
-    try!(buf.read_exact(&mut head.dev_name));
-    try!(buf.read_exact(&mut head.serial));
-    head.resp_status = try!(buf.read_u32::<LittleEndian>());
-    head.seq_counter = try!(buf.read_u32::<LittleEndian>());
-    head.unknown = try!(buf.read_u32::<LittleEndian>());
-    head.resp_conn_id = try!(buf.read_u32::<LittleEndian>());
-    if buf.get_ref().len() > 128 { // only requests contain the last two bytes
-        head.operation = try!(buf.read_u8());
-        head.rw_byte = try!(buf.read_u8());
-    }
-    Ok(head)
-}
+  pub fn parse_msg(buf: Vec<u8>) -> Result<Box<Header>, std::io::Error>  {
+      // req = 130 bytes, resp is 128 bytes
+      let mut head: Box<Header> = Box::new(Default::default());
+      let mut buf =  Cursor::new(buf);
+      head.cmd = try!(buf.read_u32::<LittleEndian>());
+      head.req_conn_id = try!(buf.read_u32::<LittleEndian>());
+      head.cmd_type = try!(buf.read_u16::<LittleEndian>());
+      try!(buf.read_exact(&mut head.version));
+      try!(buf.read_exact(&mut head.model));
+      try!(buf.read_exact(&mut head.dev_name));
+      try!(buf.read_exact(&mut head.serial));
+      head.resp_status = try!(buf.read_u32::<LittleEndian>());
+      head.seq_counter = try!(buf.read_u32::<LittleEndian>());
+      head.unknown = try!(buf.read_u32::<LittleEndian>());
+      head.resp_conn_id = try!(buf.read_u32::<LittleEndian>());
+
+      // data section based on cmd
+      if head.cmd == CMD_BASCI_MODIFY_SWITCH {
+          head.cmdSpecificData = DataSection::Segment(Set_status_data_section::default());
+          match head.cmdSpecificData {
+              DataSection::Segment(ref mut ds) => {
+                  ds.operation = try!(buf.read_u8());
+                  ds.rw_byte = try!(buf.read_u8());
+              },
+          }
+      }
+      Ok(head)
+  }
 
 pub fn recv_msg (sockAddr: SocketAddr, buf_size: usize, buf: Vec<u8>) {
     let head;
-    match head_parse(buf) {
+    match parse_msg(buf) {
         Ok(n) => {
             head = *n;
             dump_packet_header(head);
@@ -148,7 +187,7 @@ pub fn recv_msg (sockAddr: SocketAddr, buf_size: usize, buf: Vec<u8>) {
 pub fn parse_broadcast(buf: Vec<u8>) -> Result<Box<BroadcastResp>, std::io::Error> {
     let mut bresp: Box<BroadcastResp> = Box::new(Default::default());
     let mut buf =  Cursor::new(buf);
-    if buf.get_ref().len() == 408 { // if its not 408 itsour own broadcast comming back.
+    if buf.get_ref().len() == 408 { // if its not 408 its our own broadcast comming back.
         bresp.unknown = try!(buf.read_u32::<LittleEndian>());
         try!(buf.read_exact(&mut bresp.version));
         try!(buf.read_exact(&mut bresp.dev_model));
@@ -186,11 +225,17 @@ pub fn parse_broadcast(buf: Vec<u8>) -> Result<Box<BroadcastResp>, std::io::Erro
 }
 
 pub fn dump_packet_header(head: Header) {
+    let datasec;
+    match head.cmdSpecificData {
+        DataSection::Segment(ref ds) => {
+            datasec = ds;
+        },
+    }
     println!("Msg_Header");
     println!("[Cmd: 0x{:X}, Req Conn ID: 0x{:X}, cmd_type: 0x{:X}, \n Version: {}, Model: {}, Dev_name: {}, Serial: {},\n Resp_Status: 0x{:X}, Seq Counter: {}, Unknown: {} \
-     Resp Conn ID: 0x{:X}, \n Operation: {}, rwByte: {}]", head.cmd,  head.req_conn_id, head.cmd_type, str::from_utf8(&head.version).unwrap(), str::from_utf8(&head.model).unwrap(),
-     str::from_utf8(&head.dev_name).unwrap(), str::from_utf8(&head.serial).unwrap(), head.resp_status, head.seq_counter, head.unknown, head.resp_conn_id,
-      head.operation, head.rw_byte);
+     Resp Conn ID: 0x{:X}, \n {:?}]", head.cmd,  head.req_conn_id, head.cmd_type, str::from_utf8(&head.version).unwrap(), str::from_utf8(&head.model).unwrap(),
+     str::from_utf8(&head.dev_name).unwrap(), str::from_utf8(&head.serial).unwrap(), head.resp_status, head.seq_counter, head.unknown, head.resp_conn_id, datasec
+      );
 }
 
 pub fn dump_packet_broadcast(bresp: BroadcastResp) {
@@ -287,7 +332,7 @@ pub fn msg_listener(socket: UdpSocket) {
             Ok( (rcount,src_ip) ) =>  {
                 let buf = buf[0..rcount].to_vec(); // trim buf to actual recieved bytes
                 println!("recvd msg resp: size: {} SRC: {}", buf.len(), src_ip);
-                match head_parse(buf) {
+                match parse_msg(buf) {
                     Ok(n) => {
                         hresp = *n;
                         dump_packet_header(hresp)
@@ -317,13 +362,16 @@ pub fn send_broadcast(socket: &UdpSocket) {
 fn send_basic_modify(socket: &UdpSocket, write_value:u8, device_ip: &SocketAddr ) {
     let mut rng = rand::thread_rng();
     let mut head: Header = Default::default();
+    let mut data = Set_status_data_section::default();
+    let mut ds = DataSection::Segment(data);
     head.cmd = CMD_BASCI_MODIFY_SWITCH;
     head.req_conn_id = rng.gen::<u32>(); ; // needs to be changed each time or device is flakey with fast changes.  using rand now,
     head.cmd_type = 0x02;
     head.model = [0x45, 0x43, 0x4F, 0x2D, 0x37, 0x38, 0x30, 0x30, 0x34, 0x42, 0x30, 0x31, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00];
     head.seq_counter = 0x55555555; // needs to be changed each time or device is flakey with fast changes.  using rand now, but could be incremented
-    head.operation = 0x01; // this appears not to make a difference on modify_switchh.  it can be 1 or 0 and still work???
-    head.rw_byte = write_value;
+    data.operation = 0x01; // this appears not to make a difference on modify_switchh.  it can be 1 or 0 and still work???
+    data.rw_byte = write_value;
+
     // convert struct to byte stream
     let buf = pack_header(head);
     //send packet
@@ -372,8 +420,6 @@ pub fn get_switch_settings(device_ip: &str, socket: &UdpSocket) {
     send_basic_cmd(&socket, CMD_BASCI_GET_SETTING, 0x00, &dst );
 }
 
-
-
 fn pack_header(head: Header) -> Box<Vec<u8>> {
     let mut buf: Vec<u8> = vec![];
     buf.write_u32::<LittleEndian>(head.cmd).unwrap();
@@ -387,9 +433,12 @@ fn pack_header(head: Header) -> Box<Vec<u8>> {
     buf.write_u32::<LittleEndian>(head.seq_counter).unwrap();
     buf.write_u32::<LittleEndian>(head.unknown).unwrap();
     buf.write_u32::<LittleEndian>(head.resp_conn_id).unwrap();
-    if head.cmd == CMD_BASCI_MODIFY_SWITCH {
-        buf.write_u8(head.operation).unwrap();
-        buf.write_u8(head.rw_byte).unwrap();
+
+    match head.cmdSpecificData {
+        DataSection::Segment(ref ds) => {
+            buf.write_u8(ds.operation).unwrap();
+            buf.write_u8(ds.rw_byte).unwrap();
+        },
     }
     return Box::new (buf)
 }
