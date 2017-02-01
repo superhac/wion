@@ -11,7 +11,7 @@ use std::time;
 fn main() {
     let switch_ip = "192.168.0.248";
 
-    // discover devices
+    // discover devices - Done
     if false {
         let send_broadcast_sock = wion_comm::broadcast_setup();
         wion_comm::send_broadcast(&send_broadcast_sock);
@@ -23,7 +23,7 @@ fn main() {
     let msg_sock = wion_comm::msg_listener_setup();
 
     // get switch status -- Done
-    if true {
+    if false {
         wion_comm::get_switch_status( switch_ip, &msg_sock);
         thread::sleep(time::Duration::from_millis(5000));
     }
@@ -48,4 +48,10 @@ fn main() {
         thread::sleep(time::Duration::from_millis(5000));
     }
 
+    //get nightlamp settings
+
+    if true {
+        wion_comm::get_nightlamp_settings( switch_ip, &msg_sock);
+        thread::sleep(time::Duration::from_millis(5000));
+    }
 }
