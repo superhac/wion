@@ -173,7 +173,7 @@ Notice that the two additional fields added to the response packet.  These are t
 toggling the switch on and off. The <b>rwByte</b> signifies if the switch is on or off.  0 = off, 1 = on.
 </p>
 <h2>Get Rom Status</h2>
-<p>WIP - Below is the additional payload (42 bytes) form a get rom status request. This is just the addtional fields.  Does not include the basic header. Needs to be decoded.  
+<p>WIP - Below is the additional payload (42 bytes) form a get rom status request. This is just the additional fields.  Does not include the basic header. Needs to be decoded.  
 <pre>
 0000D0070101000000000000000033080101000000000000000000938CC1FA766FFC64D7B750B0000000
 </pre>
